@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VORTEX // ARCHIVE — فروشگاه مفهومی گجت و استریت‌ویر</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts: Vazirmatn & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Vazirmatn', 'Inter', 'sans-serif'],
+                        mono: ['Inter', 'monospace'],
+                    },
+                    colors: {
+                        bgMain: '#0a0a0c',
+                        bgCard: '#121316',
+                        bgElevated: '#18191e',
+                        borderSubtle: '#23252c',
+                        accent: '#e2f163',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0a0a0c;
+            color: #f4f4f5;
+            overflow-x: hidden;
+        }
+
+        /* 1. SPA Page Switching Transitions */
+        .page-view {
+            opacity: 0;
+            transform: translateY(12px) scale(0.995);
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
+                        transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            visibility: hidden;
+        }
+
+        .page-view.active-view {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+            position: relative;
+            visibility: visible;
+        }
+
+        /* 2. Product Card Hover Polish */
+        .product-card {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-4px);
+            border-color: #383b47;
+        }
+        .product-card:hover .product-img {
+            transform: scale(1.04);
+        }
+        .product-img {
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* 3. Slide-Over Drawer Transition */
+        .drawer-backdrop {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .drawer-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .drawer-panel {
+            transform: translateX(-100%);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .drawer-backdrop.open .drawer-panel {
+            transform: translateX(0);
+        }
+
+        /* 4. Center Modal Spring Transition */
+        .modal-backdrop {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.28s ease;
+        }
+        .modal-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-box {
+            transform: scale(0.95) translateY(10px);
+            opacity: 0;
+            transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
+        }
+        .modal-backdrop.open .modal-box {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0c; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+    </style>
+</head>
+<body class="antialiased selection:bg-accent selection:text-black min-h-screen flex flex-col">
+
+    <!-- PROMO TOP BANNER -->
+    <div class="bg-bgElevated border-b border-borderSubtle py-2 px-4 text-center text-[11px] text-zinc-300 flex items-center justify-center gap-2">
+        <span class="px-1.5 py-0.5 rounded bg-accent text-black font-mono font-bold text-[10px]">PROMO</span>
+        <span>برای ۲۰٪ تخفیف ویژه در سبد خرید از کد <strong class="font-mono text-accent select-all">VORTEX20</strong> استفاده کنید.</span>
+    </div>
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="sticky top-0 z-30 bg-bgMain/80 backdrop-blur-md border-b border-borderSubtle">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            
+            <div class="flex items-center gap-8">
+                <button onclick="switchView('store')" class="flex items-center gap-2.5 text-right group focus:outline-none">
+                    <div class="w-8 h-8 rounded-lg bg-white text-black flex items-center justify-center font-mono font-bold text-sm tracking-tighter group-hover:bg-accent transition-colors">
+                        VX
+                    </div>
+                    <div>
+                        <span class="font-mono font-bold tracking-tight text-base text-white block leading-none">VORTEX</span>
+                        <span class="text-[10px] text-zinc-500 font-mono tracking-widest">CONCEPT STORE</span>
+                    </div>
+                </button>
+
+                <nav class="hidden md:flex items-center gap-1 bg-bgCard p-1 rounded-xl border border-borderSubtle">
+                    <button onclick="switchView('store')" id="nav-store" class="px-4 py-1.5 rounded-lg text-xs font-medium transition-all bg-bgElevated text-white shadow-sm">
+                        ویترین فروشگاه
+                    </button>
+                    <button onclick="switchView('admin')" id="nav-admin" class="px-4 py-1.5 rounded-lg text-xs font-medium transition-all text-zinc-400 hover:text-white flex items-center gap-1.5">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                        پنل مدیریت
+                        <span id="admin-orders-badge" class="hidden px-1.5 py-0.2 rounded-full bg-accent text-black font-mono text-[10px] font-bold">0</span>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button onclick="switchView('admin')" class="md:hidden p-2.5 rounded-xl bg-bgCard border border-borderSubtle text-zinc-400 hover:text-white" title="پنل ادمین">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                </button>
+
+                <button onclick="toggleCart(true)" class="relative px-4 py-2 rounded-xl bg-bgCard hover:bg-bgElevated border border-borderSubtle flex items-center gap-2.5 transition-colors">
+                    <i data-lucide="shopping-bag" class="w-4 h-4 text-zinc-300"></i>
+                    <span class="text-xs font-medium">سبد خرید</span>
+                    <span id="cart-badge" class="px-1.5 py-0.5 text-[11px] font-mono font-bold rounded-md bg-accent text-black">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="relative flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
+
+        <!-- ==========================================
+             VIEW 1: STOREFRONT (ویترین فروشگاه)
+             ========================================== -->
+        <section id="view-store" class="page-view active-view">
+            
+            <!-- Editorial Hero Banner -->
+            <div class="relative rounded-3xl bg-bgCard border border-borderSubtle p-8 sm:p-12 mb-10 overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="max-w-xl space-y-4 z-10">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-zinc-300 text-xs">
+                        <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+                        کالکشن پاییز و زمستان ۲۰۲۶
+                    </div>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-[1.2]">
+                        طراحی مینیمال،<br>
+                        <span class="text-zinc-400 font-light">مهندسی شده برای آینده.</span>
+                    </h1>
+                    <p class="text-zinc-400 text-sm sm:text-base leading-relaxed">
+                        مجموعه‌ای دست‌چین شده از گجت‌های صوتی، تجهیزات دسکتاپ و پوشاک استریت‌ویر با کیفیت ساخت استودیویی.
+                    </p>
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <a href="#catalog" class="px-6 py-3 rounded-xl bg-white text-black font-semibold text-xs hover:bg-accent transition-colors">
+                            کاوش در محصولات
+                        </a>
+                        <button onclick="openProductModal(products[0]?.id)" class="px-5 py-3 rounded-xl bg-bgElevated hover:bg-zinc-800 border border-borderSubtle text-zinc-300 text-xs font-medium transition-colors flex items-center gap-2">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-accent"></i>
+                            بررسی محصول ویژه
+                        </button>
+                    </div>
+                </div>
+
+                <div onclick="openProductModal(products[0]?.id)" class="cursor-pointer relative w-full md:w-80 h-64 rounded-2xl overflow-hidden border border-borderSubtle bg-bgElevated shrink-0 group">
+                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80" alt="Featured" class="w-full h-full object-cover object-center opacity-90 group-hover:scale-105 transition-transform duration-700">
+                    <div class="absolute bottom-3 right-3 left-3 p-3 rounded-xl bg-black/75 backdrop-blur-md border border-white/10 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-mono text-accent block">FLAGSHIP ITEM</span>
+                            <span class="text-xs font-bold text-white">هدفون استودیویی VX-Pro</span>
+                        </div>
+                        <span class="font-mono text-xs text-zinc-300">مشاهده ←</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter, Sort & Search Bar -->
+            <div id="catalog" class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 mb-8">
+                <div class="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0">
+                    <button data-cat="all" class="cat-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-black transition-all shrink-0">
+                        همه محصولات
+                    </button>
+                    <button data-cat="گجت و صدا" class="cat-btn px-4 py-2 rounded-xl text-xs font-medium bg-bgCard text-zinc-400 hover:text-white border border-borderSubtle transition-all shrink-0">
+                        گجت و صدا
+                    </button>
+                    <button data-cat="استریت‌ویر" class="cat-btn px-4 py-2 rounded-xl text-xs font-medium bg-bgCard text-zinc-400 hover:text-white border border-borderSubtle transition-all shrink-0">
+                        استریت‌ویر
+                    </button>
+                    <button data-cat="تجهیزات ستاپ" class="cat-btn px-4 py-2 rounded-xl text-xs font-medium bg-bgCard text-zinc-400 hover:text-white border border-borderSubtle transition-all shrink-0">
+                        تجهیزات ستاپ
+                    </button>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center gap-3">
+                    <select id="sort-select" class="w-full sm:w-44 px-3.5 py-2 rounded-xl bg-bgCard border border-borderSubtle text-xs text-zinc-300 focus:outline-none focus:border-zinc-500">
+                        <option value="newest">مرتب‌سازی: جدیدترین</option>
+                        <option value="price-asc">قیمت: کم به زیاد</option>
+                        <option value="price-desc">قیمت: زیاد به کم</option>
+                    </select>
+
+                    <div class="relative w-full sm:w-64">
+                        <i data-lucide="search" class="w-4 h-4 text-zinc-500 absolute right-3.5 top-1/2 -translate-y-1/2"></i>
+                        <input 
+                            type="text" 
+                            id="search-input" 
+                            placeholder="جستجوی نام محصول..." 
+                            class="w-full pr-10 pl-4 py-2 rounded-xl bg-bgCard border border-borderSubtle text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors"
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Populated by JS -->
+            </div>
+
+        </section>
+
+
+        <!-- ==========================================
+             VIEW 2: ADMIN PANEL (پنل مدیریت پیشرفته)
+             ========================================== -->
+        <section id="view-admin" class="page-view">
+            
+            <!-- LOGIN GATE -->
+            <div id="admin-login-box" class="max-w-md mx-auto my-12 p-8 rounded-3xl bg-bgCard border border-borderSubtle shadow-2xl">
+                <div class="w-12 h-12 rounded-2xl bg-bgElevated border border-borderSubtle flex items-center justify-center mb-6 text-accent">
+                    <i data-lucide="lock" class="w-5 h-5"></i>
+                </div>
+                <h2 class="text-xl font-bold text-white mb-1">ورود به پنل مدیریت</h2>
+                <p class="text-xs text-zinc-400 mb-6">مدیریت انبار، کدهای تخفیف، سفارشات و خروجی JSON گیت‌هاب.</p>
+
+                <div class="p-3.5 rounded-xl bg-bgElevated border border-borderSubtle mb-6 text-xs flex items-center justify-between">
+                    <span class="text-zinc-400">اکانت ادمین:</span>
+                    <div class="font-mono text-zinc-200 space-x-2" dir="ltr">
+                        <span>user: <strong class="text-accent">admin</strong></span>
+                        <span>pass: <strong class="text-accent">1234</strong></span>
+                    </div>
+                </div>
+
+                <form id="login-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs text-zinc-400 mb-1.5">نام کاربری</label>
+                        <input type="text" id="admin-user" required value="admin" dir="ltr" class="w-full px-4 py-2.5 rounded-xl bg-bgMain border border-borderSubtle text-sm text-white focus:outline-none focus:border-accent font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-zinc-400 mb-1.5">رمز عبور</label>
+                        <input type="password" id="admin-pass" required value="1234" dir="ltr" class="w-full px-4 py-2.5 rounded-xl bg-bgMain border border-borderSubtle text-sm text-white focus:outline-none focus:border-accent font-mono">
+                    </div>
+                    <p id="login-error" class="text-xs text-red-400 hidden">نام کاربری یا رمز عبور اشتباه است.</p>
+                    <button type="submit" class="w-full py-3 rounded-xl bg-white hover:bg-accent text-black font-bold text-xs transition-colors">
+                        ورود به داشبورد
+                    </button>
+                </form>
+            </div>
+
+            <!-- ADMIN DASHBOARD -->
+            <div id="admin-dashboard" class="hidden space-y-6">
+                
+                <!-- ANALYTICS KPI CARDS -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="p-5 rounded-2xl bg-bgCard border border-borderSubtle flex items-center justify-between">
+                        <div>
+                            <span class="text-xs text-zinc-400 block mb-1">مجموع فروش ثبت‌شده</span>
+                            <span id="stat-revenue" class="text-lg font-mono font-bold text-accent">۰ تومان</span>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-bgElevated border border-borderSubtle flex items-center justify-center text-accent">
+                            <i data-lucide="trending-up" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-bgCard border border-borderSubtle flex items-center justify-between">
+                        <div>
+                            <span class="text-xs text-zinc-400 block mb-1">کل سفارشات مشتریان</span>
+                            <span id="stat-orders" class="text-lg font-mono font-bold text-white">0 سفارش</span>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-bgElevated border border-borderSubtle flex items-center justify-center text-zinc-300">
+                            <i data-lucide="package-check" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-bgCard border border-borderSubtle flex items-center justify-between">
+                        <div>
+                            <span class="text-xs text-zinc-400 block mb-1">تعداد کالاهای فعال</span>
+                            <span id="stat-products" class="text-lg font-mono font-bold text-white">0 کالا</span>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-bgElevated border border-borderSubtle flex items-center justify-center text-zinc-300">
+                            <i data-lucide="layers" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs & Database Tools -->
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-4 rounded-2xl bg-bgCard border border-borderSubtle">
+                    <div class="flex flex-wrap items-center gap-1.5 bg-bgMain p-1.5 rounded-xl border border-borderSubtle w-fit">
+                        <button onclick="switchAdminTab('inventory')" id="tab-btn-inventory" class="px-4 py-2 rounded-lg text-xs font-bold bg-bgElevated text-white transition-all flex items-center gap-2">
+                            <i data-lucide="package" class="w-3.5 h-3.5 text-accent"></i>
+                            مدیریت محصولات
+                        </button>
+                        <button onclick="switchAdminTab('orders')" id="tab-btn-orders" class="px-4 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:text-white transition-all flex items-center gap-2">
+                            <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                            سفارشات
+                            <span id="admin-tab-orders-count" class="px-1.5 py-0.5 rounded bg-white/10 text-white font-mono text-[10px]">0</span>
+                        </button>
+                        <button onclick="switchAdminTab('coupons')" id="tab-btn-coupons" class="px-4 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:text-white transition-all flex items-center gap-2">
+                            <i data-lucide="ticket" class="w-3.5 h-3.5"></i>
+                            کدهای تخفیف
+                        </button>
+                    </div>
+
+                    <!-- GitHub JSON Sync & Logout -->
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <button onclick="exportProductsJSON()" class="px-3.5 py-2 rounded-xl bg-bgElevated hover:bg-zinc-800 border border-borderSubtle text-xs text-zinc-200 transition-colors flex items-center gap-1.5" title="دانلود فایل products.json برای قرار دادن در گیت‌هاب">
+                            <i data-lucide="download" class="w-3.5 h-3.5 text-accent"></i>
+                            خروجی JSON گیت‌هاب
+                        </button>
+
+                        <label class="cursor-pointer px-3.5 py-2 rounded-xl bg-bgElevated hover:bg-zinc-800 border border-borderSubtle text-xs text-zinc-200 transition-colors flex items-center gap-1.5">
+                            <i data-lucide="upload" class="w-3.5 h-3.5 text-zinc-400"></i>
+                            ایمپورت JSON
+                            <input type="file" id="import-json-input" accept=".json" class="hidden" onchange="importProductsJSON(event)">
+                        </label>
+
+                        <button onclick="adminLogout()" class="px-3.5 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-xs text-red-400 transition-colors flex items-center gap-1.5">
+                            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                            خروج
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TAB 1: INVENTORY & PRODUCT EDITOR -->
+                <div id="admin-tab-inventory" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div class="lg:col-span-5 p-6 rounded-2xl bg-bgCard border border-borderSubtle h-fit">
+                        <div class="flex items-center justify-between mb-5">
+                            <h3 id="form-heading" class="text-base font-bold text-white flex items-center gap-2">
+                                <i data-lucide="plus-square" class="w-4 h-4 text-accent"></i>
+                                افزودن محصول جدید
+                            </h3>
+                            <button id="cancel-edit-btn" onclick="cancelEditMode()" class="hidden text-xs text-zinc-400 hover:text-white underline">
+                                لغو ویرایش
+                            </button>
+                        </div>
+
+                        <form id="product-form" class="space-y-4">
+                            <input type="hidden" id="edit-prod-id" value="">
+
+                            <div>
+                                <label class="block text-xs text-zinc-400 mb-1.5">عنوان محصول</label>
+                                <input type="text" id="prod-title" required placeholder="مثلاً: کیبورد مکانیکی کاستوم K8" class="w-full px-3.5 py-2.5 rounded-xl bg-bgMain border border-borderSubtle text-xs text-white focus:outline-none focus:border-zinc-500">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs text-zinc-400 mb-1.5">قیمت (تومان)</label>
+                                    <input type="number" id="prod-price" required placeholder="4500000" dir="ltr" class="w-full px-3.5 py-2.5 rounded-xl bg-bgMain border border-borderSubtle text-xs text-white font-mono focus:outline-none focus:border-zinc-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-zinc-400 mb-1.5">دسته‌بندی</label>
+                                    <select id="prod-category" class="w-full px-3.5 py-2.5 rounded-xl bg-bgMain border border-borderSubtle text-xs text-white focus:outline-none focus:border-zinc-500">
+                                        <option value="گجت و صدا">گجت و صدا</option>
+                                        <option value="استریت‌ویر">استریت‌ویر</option>
+                                        <option value="تجهیزات ستاپ">تجهیزات ستاپ</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-zinc-400 mb-1.5">توضیحات و مشخصات فنی</label>
+                                <textarea id="prod-desc" rows="3" placeholder="توضیحات کامل محصول برای نمایش در صفحه جزئیات..." class="w-full px-3.5 py-2.5 rounded-xl bg-bgMain border border-borderSubtle text-xs text-white focus:outline-none focus:border-zinc-500"></textarea>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs text-zinc-400 mb-1.5">لینک تصویر (URL)</label>
+                                    <input type="url" id="prod-img" placeholder="https://..." dir="ltr" class="w-full px-3.5 py-2.5 rounded-xl bg-bgMain border border-borderSubtle text-xs text-white font-mono focus:outline-none focus:border-zinc-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-zinc-400 mb-1.5">برچسب (اختیاری)</label>
+                                    <input type="text" id="prod-badge" placeholder="NEW / LIMITED" class="w-full px-3.5 py-2.5 rounded-xl bg-bgMain border border-borderSubtle text-xs text-white focus:outline-none focus:border-zinc-500">
+                                </div>
+                            </div>
+
+                            <button type="submit" id="form-submit-btn" class="w-full py-3 rounded-xl bg-accent hover:brightness-105 text-black font-bold text-xs transition-all flex items-center justify-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                                <span>ثبت و انتشار در فروشگاه</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="lg:col-span-7 p-6 rounded-2xl bg-bgCard border border-borderSubtle">
+                        <div class="flex items-center justify-between mb-5">
+                            <h3 class="text-base font-bold text-white">لیست موجودی انبار</h3>
+                            <button onclick="resetDefaultProducts()" class="text-xs text-zinc-400 hover:text-white underline">
+                                بازگردانی کالاهای پیش‌فرض
+                            </button>
+                        </div>
+
+                        <div id="admin-products-list" class="space-y-3 max-h-[540px] overflow-y-auto pr-1">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: CUSTOMER ORDERS MANAGEMENT -->
+                <div id="admin-tab-orders" class="hidden p-6 rounded-2xl bg-bgCard border border-borderSubtle">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-base font-bold text-white">سفارشات ثبت‌شده مشتریان</h3>
+                            <p class="text-xs text-zinc-400 mt-0.5">لیست سفارشاتی که از طریق سبد خرید فروشگاه ثبت شده‌اند.</p>
+                        </div>
+                        <button onclick="clearOrders()" class="text-xs text-zinc-400 hover:text-red-400 transition-colors">
+                            پاکسازی تاریخچه سفارشات
+                        </button>
+                    </div>
+
+                    <div id="admin-orders-list" class="space-y-4">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- TAB 3: DISCOUNT COUPONS MANAGER -->
+                <div id="admin-tab-coupons" class="hidden grid grid-cols-1 md:grid-cols-12 gap-8">
+                    <div class="md:col-span-5 p-6 rounded-2xl bg-bgCard border border-borderSubtle h-fit">
+                        <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                            <i data-lucide="ticket" class="w-4 h-4 text-accent"></i>
+                            تعریف کد تخفیف جدید
+                        </h3>
+                        <form id="coupon-form" class="space-y-4">
+                            <div>
+                                <label class="block text-xs text-zinc-400 mb-1.5">کد تخفیف (حروف انگلیسی)</label>
+                                <input type="text" id="coupon-code" required placeholder="OFF30" dir="ltr" class="w-full px-3.5 py-2.5 rounded-xl bg-bgMain border border-borderSubtle text-xs text-white font-mono uppercase focus:outline-none focus:border-zinc-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-zinc-400 mb-1.5">درصد تخفیف (بین ۱ تا ۹۰)</label>
+                                <input type="number" id="coupon-percent" required min="1" max="90" placeholder="25" dir="ltr" class="w-full px-3.5 py-2.5 rounded-xl bg-bgMain border border-borderSubtle text-xs text-white font-mono focus:outline-none focus:border-zinc-500">
+                            </div>
+                            <button type="submit" class="w-full py-3 rounded-xl bg-accent text-black font-bold text-xs hover:brightness-105 transition-all">
+                                افزودن کد تخفیف
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="md:col-span-7 p-6 rounded-2xl bg-bgCard border border-borderSubtle">
+                        <h3 class="text-base font-bold text-white mb-4">کدهای تخفیف فعال در فروشگاه</h3>
+                        <div id="admin-coupons-list" class="space-y-3">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ==========================================
+         MODAL 1: PRODUCT DETAIL QUICK-VIEW
+         ========================================== -->
+    <div id="product-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="modal-box w-full max-w-3xl rounded-3xl bg-bgCard border border-borderSubtle overflow-hidden shadow-2xl grid grid-cols-1 md:grid-cols-12 relative">
+            
+            <button onclick="closeProductModal()" class="absolute top-4 left-4 z-20 w-9 h-9 rounded-full bg-black/60 text-zinc-300 hover:text-white flex items-center justify-center border border-white/10 transition-colors">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+
+            <div class="md:col-span-6 bg-bgElevated h-72 md:h-auto relative overflow-hidden">
+                <img id="modal-img" src="" alt="" class="w-full h-full object-cover">
+                <span id="modal-badge" class="hidden absolute top-4 right-4 px-3 py-1 rounded-md bg-black/80 backdrop-blur-md text-[11px] font-mono font-bold text-accent border border-white/10"></span>
+            </div>
+
+            <div class="md:col-span-6 p-6 sm:p-8 flex flex-col justify-between space-y-6">
+                <div>
+                    <span id="modal-cat" class="text-xs text-zinc-400 block mb-1"></span>
+                    <h2 id="modal-title" class="text-xl sm:text-2xl font-extrabold text-white leading-snug mb-3"></h2>
+                    <div id="modal-price" class="text-lg font-mono font-bold text-accent mb-4"></div>
+                    <p id="modal-desc" class="text-xs sm:text-sm text-zinc-400 leading-relaxed border-t border-borderSubtle pt-4"></p>
+
+                    <div class="mt-5">
+                        <label class="block text-xs text-zinc-300 font-medium mb-2">انتخاب رنگ / نسخه:</label>
+                        <div class="flex items-center gap-2" id="modal-options">
+                            <button onclick="selectOption(this)" class="opt-btn px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white text-black border border-white transition-all">مشکی کربن (Obsidian)</button>
+                            <button onclick="selectOption(this)" class="opt-btn px-3.5 py-1.5 rounded-lg text-xs font-medium bg-bgMain text-zinc-400 border border-borderSubtle hover:text-white transition-all">نقره‌ای تیتانیوم</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-borderSubtle flex items-center gap-3">
+                    <button id="modal-add-btn" class="flex-1 py-3.5 rounded-xl bg-accent hover:brightness-105 text-black font-bold text-xs transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                        افزودن به سبد خرید
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==========================================
+         MODAL 2: CHECKOUT FORM
+         ========================================== -->
+    <div id="checkout-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="modal-box w-full max-w-md rounded-3xl bg-bgCard border border-borderSubtle p-6 sm:p-8 shadow-2xl relative">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="credit-card" class="w-5 h-5 text-accent"></i>
+                    <h3 class="text-base font-bold text-white">تکمیل اطلاعات ارسال</h3>
+                </div>
+                <button onclick="closeCheckoutModal()" class="p-1.5 rounded-lg text-zinc-400 hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <form id="checkout-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-zinc-400 mb-1.5">نام و نام خانوادگی گیرنده</label>
+                    <input type="text" id="cust-name" required placeholder="مثلاً: پارسا قربانی" class="w-full px-3.5 py-2.5 rounded-xl bg-bgMain border border-borderSubtle text-xs text-white focus:outline-none focus:border-zinc-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-zinc-400 mb-1.5">شماره موبایل</label>
+                    <input type="tel" id="cust-phone" required placeholder="0912..." dir="ltr" class="w-full px-3.5 py-2.5 rounded-xl bg-bgMain border border-borderSubtle text-xs text-white font-mono focus:outline-none focus:border-zinc-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-zinc-400 mb-1.5">آدرس دقیق پستی</label>
+                    <textarea id="cust-address" required rows="2" placeholder="استان، شهر، خیابان، پلاک..." class="w-full px-3.5 py-2.5 rounded-xl bg-bgMain border border-borderSubtle text-xs text-white focus:outline-none focus:border-zinc-500"></textarea>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-bgElevated border border-borderSubtle flex items-center justify-between text-xs">
+                    <span class="text-zinc-400">مبلغ نهایی (با احتساب تخفیف):</span>
+                    <span id="checkout-total-Amount" class="font-mono font-bold text-accent"></span>
+                </div>
+
+                <button type="submit" class="w-full py-3.5 rounded-xl bg-white hover:bg-accent text-black font-bold text-xs transition-colors">
+                    ثبت نهایی سفارش
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- SLIDE-OVER SHOPPING CART DRAWER -->
+    <div id="cart-drawer" class="drawer-backdrop fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex justify-end">
+        <div class="drawer-panel w-full max-w-md bg-bgCard border-r border-borderSubtle h-full flex flex-col justify-between p-6 shadow-2xl">
+            
+            <div class="flex items-center justify-between pb-4 border-b border-borderSubtle">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="shopping-bag" class="w-4 h-4 text-accent"></i>
+                    <h3 class="font-bold text-sm text-white">سبد خرید شما</h3>
+                </div>
+                <button onclick="toggleCart(false)" class="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-bgElevated transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div id="cart-items" class="flex-1 overflow-y-auto py-4 space-y-3">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="pt-4 border-t border-borderSubtle space-y-4">
+                <!-- Coupon Input Box -->
+                <div class="flex items-center gap-2">
+                    <input type="text" id="cart-coupon-input" placeholder="کد تخفیف (مثلاً VORTEX20)" dir="ltr" class="flex-1 px-3 py-2 rounded-xl bg-bgMain border border-borderSubtle text-xs text-white font-mono uppercase focus:outline-none focus:border-zinc-500">
+                    <button onclick="applyCouponCode()" class="px-4 py-2 rounded-xl bg-bgElevated hover:bg-zinc-700 text-xs text-zinc-200 font-medium transition-colors">
+                        اعمال کد
+                    </button>
+                </div>
+
+                <div id="discount-row" class="hidden flex items-center justify-between text-xs text-accent">
+                    <span>تخفیف اعمال شده (<span id="discount-code-label" class="font-mono"></span>):</span>
+                    <span id="discount-amount-label" class="font-mono"></span>
+                </div>
+
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-zinc-400">مجموع قابل پرداخت:</span>
+                    <span id="cart-total" class="font-mono font-bold text-white">۰ تومان</span>
+                </div>
+                <button onclick="openCheckoutModal()" class="w-full py-3.5 rounded-xl bg-white hover:bg-accent text-black font-bold text-xs transition-colors">
+                    ادامه جهت تسویه‌حساب
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-5 left-5 z-50 px-4 py-3 rounded-xl bg-bgElevated border border-borderSubtle text-xs text-white shadow-xl flex items-center gap-2.5 opacity-0 pointer-events-none transition-all duration-300 translate-y-2">
+        <span class="w-2 h-2 rounded-full bg-accent"></span>
+        <span id="toast-msg">عملیات انجام شد</span>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-borderSubtle py-6 px-4 text-center text-xs text-zinc-500 mt-16">
+        VORTEX CONCEPT STORE — مرحله ۳: مجهز به موتور کد تخفیف، آمار فروش زنده و سینک دیتابیس JSON گیت‌هاب
+    </footer>
+
+    <!-- APPLICATION LOGIC -->
+    <script>
+        const defaultProducts = [
+            {
+                id: 101,
+                title: 'هدفون استودیویی بی‌سیم مدل VX-Pro',
+                price: 8900000,
+                category: 'گجت و صدا',
+                badge: 'BESTSELLER',
+                desc: 'مجهز به درایورهای ۴۵ میلی‌متری نئودیمیوم، حذف نویز فعال (ANC) تطبیقی و ۴۰ ساعت شارژدهی مداوم مناسب میکس و مسترینگ.',
+                image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=700&q=80'
+            },
+            {
+                id: 102,
+                title: 'کیبورد مکانیکی آلومینیومی 65% کاستوم',
+                price: 6450000,
+                category: 'تجهیزات ستاپ',
+                badge: 'NEW',
+                desc: 'بدنه تمام آلومینیوم CNC شده، سوییچ‌های لاینر روغن‌کاری شده (Lubed) با قابلیت Hot-Swap و اتصال سه حالته بی‌سیم.',
+                image: 'https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=700&q=80'
+            },
+            {
+                id: 103,
+                title: 'هودی اورسایز هوی‌ویت مشکی کربن',
+                price: 2350000,
+                category: 'استریت‌ویر',
+                badge: 'LIMITED',
+                desc: 'پارچه دورس پنبه سوپر ۵۰۰ گرمی با برش باکسی (Boxy Fit) و دوخت صنعتی مقاوم در برابر شستشو.',
+                image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=700&q=80'
+            },
+            {
+                id: 104,
+                title: 'اسپیکر مانیتورینگ رومیزی مینیمال',
+                price: 11200000,
+                category: 'گجت و صدا',
+                badge: '',
+                desc: 'پاسخ فرکانسی فلت و دقیق با آمپلی‌فایر کلاس D داخلی و ورودی‌های اپتیکال و بلوتوث 5.3.',
+                image: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=700&q=80'
+            },
+            {
+                id: 105,
+                title: 'کتانی رانینگ مفهومی مدل Aero-Dark',
+                price: 5800000,
+                category: 'استریت‌ویر',
+                badge: 'HOT',
+                desc: 'زیره جذب‌کننده ضربه با کپسول فشرده و رویه تنفس‌پذیر ضدآب مناسب استفاده روزمره و استایل شهری.',
+                image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=80'
+            },
+            {
+                id: 106,
+                title: 'ماوس گیمینگ فوق‌سبک کربنی بی‌سیم',
+                price: 4100000,
+                category: 'تجهیزات ستاپ',
+                badge: '',
+                desc: 'وزن فوق‌العاده سبک ۴۹ گرم، سنسور اپتیکال ۲۶۰۰۰ DPI و نرخ نمونه‌برداری 4000Hz بدون تاخیر.',
+                image: 'https://images.unsplash.com/photo-1527814050087-3793815479db?auto=format&fit=crop&w=700&q=80'
+            }
+        ];
+
+        const defaultCoupons = [
+            { code: 'VORTEX20', percent: 20 },
+            { code: 'VIP10', percent: 10 }
+        ];
+
+        let products = JSON.parse(localStorage.getItem('vx_products')) || defaultProducts;
+        let cart = JSON.parse(localStorage.getItem('vx_cart')) || [];
+        let orders = JSON.parse(localStorage.getItem('vx_orders')) || [];
+        let coupons = JSON.parse(localStorage.getItem('vx_coupons')) || defaultCoupons;
+        let isAdminLoggedIn = sessionStorage.getItem('vx_admin_auth') === 'true';
+        
+        let currentCategory = 'all';
+        let searchQuery = '';
+        let sortMode = 'newest';
+        let selectedOptionText = 'مشکی کربن (Obsidian)';
+        let activeCoupon = null;
+
+        // Auto-fetch products.json if hosted on GitHub Pages and localStorage is empty
+        async function syncExternalJSONIfNeeded() {
+            if (!localStorage.getItem('vx_products')) {
+                try {
+                    const res = await fetch('./products.json');
+                    if (res.ok) {
+                        const externalData = await res.json();
+                        if (Array.isArray(externalData) && externalData.length > 0) {
+                            products = externalData;
+                            saveProducts();
+                            renderStore();
+                        }
+                    }
+                } catch (_) {
+                    // Fallback to defaultProducts silently
+                }
+            }
+        }
+
+        function saveProducts() { localStorage.setItem('vx_products', JSON.stringify(products)); updateAdminStats(); }
+        function saveCart() { localStorage.setItem('vx_cart', JSON.stringify(cart)); }
+        function saveOrders() { localStorage.setItem('vx_orders', JSON.stringify(orders)); updateOrderBadges(); updateAdminStats(); }
+        function saveCoupons() { localStorage.setItem('vx_coupons', JSON.stringify(coupons)); }
+
+        function formatPrice(num) {
+            return Number(num).toLocaleString('fa-IR') + ' تومان';
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.classList.remove('opacity-0', 'translate-y-2');
+            setTimeout(() => toast.classList.add('opacity-0', 'translate-y-2'), 2600);
+        }
+
+        // 1. SPA VIEW SWITCHER
+        function switchView(target) {
+            const storeView = document.getElementById('view-store');
+            const adminView = document.getElementById('view-admin');
+            const navStore = document.getElementById('nav-store');
+            const navAdmin = document.getElementById('nav-admin');
+
+            if (target === 'store') {
+                adminView.classList.remove('active-view');
+                storeView.classList.add('active-view');
+                if (navStore && navAdmin) {
+                    navStore.className = 'px-4 py-1.5 rounded-lg text-xs font-medium transition-all bg-bgElevated text-white shadow-sm';
+                    navAdmin.className = 'px-4 py-1.5 rounded-lg text-xs font-medium transition-all text-zinc-400 hover:text-white flex items-center gap-1.5';
+                }
+            } else {
+                storeView.classList.remove('active-view');
+                adminView.classList.add('active-view');
+                if (navStore && navAdmin) {
+                    navAdmin.className = 'px-4 py-1.5 rounded-lg text-xs font-medium transition-all bg-bgElevated text-white shadow-sm flex items-center gap-1.5';
+                    navStore.className = 'px-4 py-1.5 rounded-lg text-xs font-medium transition-all text-zinc-400 hover:text-white';
+                }
+                renderAdminView();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 2. RENDER STOREFRONT
+        function renderStore() {
+            const grid = document.getElementById('products-grid');
+            let filtered = products.filter(p => {
+                const matchCat = currentCategory === 'all' || p.category === currentCategory;
+                const matchSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchCat && matchSearch;
+            });
+
+            if (sortMode === 'price-asc') filtered.sort((a, b) => a.price - b.price);
+            else if (sortMode === 'price-desc') filtered.sort((a, b) => b.price - a.price);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-16 text-center text-zinc-500 text-sm border border-dashed border-borderSubtle rounded-2xl">محصولی با این مشخصات یافت نشد.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(p => `
+                <article class="product-card rounded-2xl bg-bgCard border border-borderSubtle overflow-hidden flex flex-col justify-between">
+                    <div onclick="openProductModal(${p.id})" class="cursor-pointer">
+                        <div class="relative h-56 bg-bgElevated overflow-hidden">
+                            <img src="${p.image}" alt="${p.title}" class="product-img w-full h-full object-cover">
+                            ${p.badge ? `<span class="absolute top-3 right-3 px-2.5 py-1 rounded-md bg-black/75 backdrop-blur-md text-[10px] font-mono font-bold text-accent border border-white/10">${p.badge}</span>` : ''}
+                        </div>
+                        <div class="p-5">
+                            <span class="text-[11px] text-zinc-500 block mb-1">${p.category}</span>
+                            <h3 class="font-bold text-sm text-white leading-snug line-clamp-2 hover:text-accent transition-colors">${p.title}</h3>
+                        </div>
+                    </div>
+
+                    <div class="px-5 pb-5 pt-3 border-t border-borderSubtle/60 flex items-center justify-between">
+                        <span class="font-mono font-bold text-xs text-zinc-200">${formatPrice(p.price)}</span>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="openProductModal(${p.id})" class="p-2 rounded-xl bg-bgElevated hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors" title="مشاهده جزئیات">
+                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button onclick="addToCart(${p.id})" class="px-3.5 py-2 rounded-xl bg-bgElevated hover:bg-white hover:text-black text-zinc-200 text-xs font-medium transition-colors flex items-center gap-1">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                خرید
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // 3. PRODUCT DETAIL MODAL
+        function openProductModal(id) {
+            const p = products.find(item => item.id === id);
+            if (!p) return;
+
+            document.getElementById('modal-img').src = p.image;
+            document.getElementById('modal-cat').textContent = p.category;
+            document.getElementById('modal-title').textContent = p.title;
+            document.getElementById('modal-price').textContent = formatPrice(p.price);
+            document.getElementById('modal-desc').textContent = p.desc || 'طراحی و تولید شده با بالاترین استانداردهای مهندسی و متریال درجه یک استودیویی.';
+
+            const badgeEl = document.getElementById('modal-badge');
+            if (p.badge) {
+                badgeEl.textContent = p.badge;
+                badgeEl.classList.remove('hidden');
+            } else {
+                badgeEl.classList.add('hidden');
+            }
+
+            document.getElementById('modal-add-btn').onclick = () => {
+                addToCart(p.id, selectedOptionText);
+                closeProductModal();
+            };
+
+            document.getElementById('product-modal').classList.add('open');
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.remove('open');
+        }
+
+        function selectOption(btn) {
+            document.querySelectorAll('.opt-btn').forEach(b => {
+                b.className = 'opt-btn px-3.5 py-1.5 rounded-lg text-xs font-medium bg-bgMain text-zinc-400 border border-borderSubtle hover:text-white transition-all';
+            });
+            btn.className = 'opt-btn px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white text-black border border-white transition-all';
+            selectedOptionText = btn.textContent;
+        }
+
+        // 4. CART & COUPON ENGINE
+        function toggleCart(open) {
+            const drawer = document.getElementById('cart-drawer');
+            if (open) drawer.classList.add('open');
+            else drawer.classList.remove('open');
+        }
+
+        function addToCart(id, variant = 'نسخه استاندارد') {
+            const prod = products.find(p => p.id === id);
+            if (!prod) return;
+            const existing = cart.find(item => item.id === id);
+            if (existing) existing.qty += 1;
+            else cart.push({ ...prod, qty: 1, variant });
+
+            saveCart();
+            renderCart();
+            showToast(`«${prod.title}» به سبد خرید اضافه شد`);
+        }
+
+        function changeQty(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+            saveCart();
+            renderCart();
+        }
+
+        function getCartTotals() {
+            const rawTotal = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const discountAmount = activeCoupon ? Math.round((rawTotal * activeCoupon.percent) / 100) : 0;
+            const finalTotal = Math.max(0, rawTotal - discountAmount);
+            return { rawTotal, discountAmount, finalTotal };
+        }
+
+        function applyCouponCode() {
+            const codeInput = document.getElementById('cart-coupon-input').value.trim().toUpperCase();
+            if (!codeInput) return;
+
+            const found = coupons.find(c => c.code === codeInput);
+            if (!found) {
+                activeCoupon = null;
+                renderCart();
+                showToast('کد تخفیف نامعتبر یا منقضی شده است.');
+                return;
+            }
+
+            activeCoupon = found;
+            renderCart();
+            showToast(`کد تخفیف ${found.percent}٪ با موفقیت اعمال شد!`);
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items');
+            const badge = document.getElementById('cart-badge');
+            const totalEl = document.getElementById('cart-total');
+            const discountRow = document.getElementById('discount-row');
+
+            const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
+            const { discountAmount, finalTotal } = getCartTotals();
+
+            badge.textContent = totalQty;
+            totalEl.textContent = formatPrice(finalTotal);
+
+            if (activeCoupon && discountAmount > 0) {
+                discountRow.classList.remove('hidden');
+                document.getElementById('discount-code-label').textContent = `${activeCoupon.code} - ${activeCoupon.percent}%`;
+                document.getElementById('discount-amount-label').textContent = `- ${formatPrice(discountAmount)}`;
+            } else {
+                discountRow.classList.add('hidden');
+            }
+
+            if (cart.length === 0) {
+                container.innerHTML = `<div class="text-center py-16 text-xs text-zinc-500">سبد خرید شما خالی است.</div>`;
+                return;
+            }
+
+            container.innerHTML = cart.map(item => `
+                <div class="flex items-center justify-between gap-3 p-3 rounded-xl bg-bgElevated border border-borderSubtle">
+                    <img src="${item.image}" class="w-12 h-12 rounded-lg object-cover shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-xs font-bold text-white truncate">${item.title}</h4>
+                        <span class="text-[11px] text-zinc-400 font-mono block">${formatPrice(item.price)}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 bg-bgMain px-2 py-1 rounded-lg border border-borderSubtle">
+                        <button onclick="changeQty(${item.id}, 1)" class="text-zinc-400 hover:text-white text-xs px-1">+</button>
+                        <span class="font-mono text-xs text-white w-4 text-center">${item.qty}</span>
+                        <button onclick="changeQty(${item.id}, -1)" class="text-zinc-400 hover:text-red-400 text-xs px-1">-</button>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // 5. CHECKOUT & ORDERS SYSTEM
+        function openCheckoutModal() {
+            if (cart.length === 0) {
+                showToast('سبد خرید شما خالی است!');
+                return;
+            }
+            const { finalTotal } = getCartTotals();
+            document.getElementById('checkout-total-Amount').textContent = formatPrice(finalTotal);
+            toggleCart(false);
+            document.getElementById('checkout-modal').classList.add('open');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkout-modal').classList.remove('open');
+        }
+
+        document.getElementById('checkout-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const customer = document.getElementById('cust-name').value.trim();
+            const phone = document.getElementById('cust-phone').value.trim();
+            const address = document.getElementById('cust-address').value.trim();
+            const { finalTotal } = getCartTotals();
+
+            const newOrder = {
+                orderId: 'VX-' + Math.floor(1000 + Math.random() * 9000),
+                customer,
+                phone,
+                address,
+                total: finalTotal,
+                couponUsed: activeCoupon ? activeCoupon.code : null,
+                items: cart.map(i => `${i.title} (×${i.qty})`).join('، '),
+                status: 'در انتظار ارسال',
+                date: new Date().toLocaleDateString('fa-IR')
+            };
+
+            orders.unshift(newOrder);
+            saveOrders();
+
+            cart = [];
+            activeCoupon = null;
+            document.getElementById('cart-coupon-input').value = '';
+            saveCart();
+            renderCart();
+            e.target.reset();
+            closeCheckoutModal();
+            showToast(`سفارش ${newOrder.orderId} با موفقیت ثبت شد!`);
+        });
+
+        function updateOrderBadges() {
+            const count = orders.length;
+            const navBadge = document.getElementById('admin-orders-badge');
+            const tabBadge = document.getElementById('admin-tab-orders-count');
+            if (tabBadge) tabBadge.textContent = count;
+            if (navBadge) {
+                navBadge.textContent = count;
+                if (count > 0) navBadge.classList.remove('hidden');
+                else navBadge.classList.add('hidden');
+            }
+        }
+
+        function updateAdminStats() {
+            const revEl = document.getElementById('stat-revenue');
+            const ordEl = document.getElementById('stat-orders');
+            const prodEl = document.getElementById('stat-products');
+            if (!revEl) return;
+
+            const totalRevenue = orders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+            revEl.textContent = formatPrice(totalRevenue);
+            ordEl.textContent = `${orders.length} سفارش`;
+            prodEl.textContent = `${products.length} کالا`;
+        }
+
+        // 6. ADMIN PANEL (AUTH, TABS, COUPONS, JSON SYNC)
+        function renderAdminView() {
+            const loginBox = document.getElementById('admin-login-box');
+            const dashboard = document.getElementById('admin-dashboard');
+
+            if (isAdminLoggedIn) {
+                loginBox.classList.add('hidden');
+                dashboard.classList.remove('hidden');
+                updateAdminStats();
+                renderAdminInventory();
+                renderAdminOrders();
+                renderAdminCoupons();
+            } else {
+                loginBox.classList.remove('hidden');
+                dashboard.classList.add('hidden');
+            }
+        }
+
+        function switchAdminTab(tab) {
+            const tabs = ['inventory', 'orders', 'coupons'];
+            tabs.forEach(t => {
+                const el = document.getElementById(`admin-tab-${t}`);
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (t === tab) {
+                    el.classList.remove('hidden');
+                    btn.className = 'px-4 py-2 rounded-lg text-xs font-bold bg-bgElevated text-white transition-all flex items-center gap-2';
+                } else {
+                    el.classList.add('hidden');
+                    btn.className = 'px-4 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:text-white transition-all flex items-center gap-2';
+                }
+            });
+            lucide.createIcons();
+        }
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const u = document.getElementById('admin-user').value.trim();
+            const p = document.getElementById('admin-pass').value.trim();
+            const err = document.getElementById('login-error');
+
+            if (u === 'admin' && p === '1234') {
+                isAdminLoggedIn = true;
+                sessionStorage.setItem('vx_admin_auth', 'true');
+                err.classList.add('hidden');
+                renderAdminView();
+                showToast('وارد پنل مدیریت شدید.');
+            } else {
+                err.classList.remove('hidden');
+            }
+        });
+
+        function adminLogout() {
+            isAdminLoggedIn = false;
+            sessionStorage.removeItem('vx_admin_auth');
+            renderAdminView();
+            showToast('از پنل مدیریت خارج شدید.');
+        }
+
+        function renderAdminInventory() {
+            const list = document.getElementById('admin-products-list');
+            list.innerHTML = products.map(p => `
+                <div class="flex items-center justify-between gap-4 p-3.5 rounded-xl bg-bgMain border border-borderSubtle">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <img src="${p.image}" class="w-11 h-11 rounded-lg object-cover shrink-0">
+                        <div class="min-w-0">
+                            <h4 class="text-xs font-bold text-white truncate">${p.title}</h4>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-[11px] text-zinc-400">${p.category}</span>
+                                <span class="text-zinc-600">•</span>
+                                <span class="text-[11px] font-mono text-accent">${formatPrice(p.price)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="startEditProduct(${p.id})" class="px-3 py-1.5 rounded-lg bg-bgElevated hover:bg-zinc-700 text-zinc-200 text-xs transition-colors">
+                            ویرایش
+                        </button>
+                        <button onclick="deleteProduct(${p.id})" class="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs transition-colors">
+                            حذف
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function startEditProduct(id) {
+            const p = products.find(item => item.id === id);
+            if (!p) return;
+
+            document.getElementById('edit-prod-id').value = p.id;
+            document.getElementById('prod-title').value = p.title;
+            document.getElementById('prod-price').value = p.price;
+            document.getElementById('prod-category').value = p.category;
+            document.getElementById('prod-desc').value = p.desc || '';
+            document.getElementById('prod-img').value = p.image;
+            document.getElementById('prod-badge').value = p.badge || '';
+
+            document.getElementById('form-heading').innerHTML = `<i data-lucide="edit-3" class="w-4 h-4 text-accent"></i> ویرایش محصول`;
+            document.getElementById('form-submit-btn').innerHTML = `<span>ذخیره تغییرات محصول</span>`;
+            document.getElementById('cancel-edit-btn').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function cancelEditMode() {
+            document.getElementById('product-form').reset();
+            document.getElementById('edit-prod-id').value = '';
+            document.getElementById('form-heading').innerHTML = `<i data-lucide="plus-square" class="w-4 h-4 text-accent"></i> افزودن محصول جدید`;
+            document.getElementById('form-submit-btn').innerHTML = `<i data-lucide="check" class="w-4 h-4"></i><span>ثبت و انتشار در فروشگاه</span>`;
+            document.getElementById('cancel-edit-btn').classList.add('hidden');
+            lucide.createIcons();
+        }
+
+        document.getElementById('product-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const editId = document.getElementById('edit-prod-id').value;
+            const title = document.getElementById('prod-title').value.trim();
+            const price = Number(document.getElementById('prod-price').value);
+            const category = document.getElementById('prod-category').value;
+            const desc = document.getElementById('prod-desc').value.trim();
+            const badge = document.getElementById('prod-badge').value.trim().toUpperCase();
+            const imgInput = document.getElementById('prod-img').value.trim();
+            const fallbackImg = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=700&q=80';
+
+            if (editId) {
+                const index = products.findIndex(p => p.id === Number(editId));
+                if (index > -1) {
+                    products[index] = { ...products[index], title, price, category, desc, badge, image: imgInput || fallbackImg };
+                }
+                showToast('تغییرات محصول ذخیره شد!');
+                cancelEditMode();
+            } else {
+                products.unshift({
+                    id: Date.now(),
+                    title,
+                    price,
+                    category,
+                    desc,
+                    badge,
+                    image: imgInput || fallbackImg
+                });
+                e.target.reset();
+                showToast('محصول جدید اضافه شد!');
+            }
+
+            saveProducts();
+            renderStore();
+            renderAdminInventory();
+        });
+
+        function deleteProduct(id) {
+            products = products.filter(p => p.id !== id);
+            saveProducts();
+            renderStore();
+            renderAdminInventory();
+            showToast('محصول حذف شد.');
+        }
+
+        function resetDefaultProducts() {
+            products = [...defaultProducts];
+            saveProducts();
+            renderStore();
+            renderAdminInventory();
+            showToast('محصولات پیش‌فرض بازیابی شدند.');
+        }
+
+        // COUPON MANAGEMENT IN ADMIN
+        function renderAdminCoupons() {
+            const list = document.getElementById('admin-coupons-list');
+            list.innerHTML = coupons.map(c => `
+                <div class="flex items-center justify-between p-3.5 rounded-xl bg-bgMain border border-borderSubtle">
+                    <div class="flex items-center gap-3">
+                        <span class="px-3 py-1 rounded-lg bg-accent/15 border border-accent/30 text-accent font-mono text-xs font-bold">${c.code}</span>
+                        <span class="text-xs text-zinc-300">${c.percent}٪ تخفیف روی کل سبد خرید</span>
+                    </div>
+                    <button onclick="deleteCoupon('${c.code}')" class="text-xs text-red-400 hover:underline">حذف</button>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('coupon-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const code = document.getElementById('coupon-code').value.trim().toUpperCase();
+            const percent = Number(document.getElementById('coupon-percent').value);
+            if (!code || percent <= 0) return;
+
+            coupons = coupons.filter(c => c.code !== code);
+            coupons.unshift({ code, percent });
+            saveCoupons();
+            renderAdminCoupons();
+            e.target.reset();
+            showToast(`کد تخفیف ${code} فعال شد!`);
+        });
+
+        function deleteCoupon(code) {
+            coupons = coupons.filter(c => c.code !== code);
+            saveCoupons();
+            renderAdminCoupons();
+            showToast('کد تخفیف حذف شد.');
+        }
+
+        // EXPORT / IMPORT JSON FOR GITHUB REPOSITORY
+        function exportProductsJSON() {
+            const dataStr = JSON.stringify(products, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'products.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('فایل products.json دانلود شد! آن را در کنار index.html در گیت‌هاب قرار دهید.');
+        }
+
+        function importProductsJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        products = imported;
+                        saveProducts();
+                        renderStore();
+                        renderAdminInventory();
+                        showToast('دیتابیس محصولات با موفقیت ایمپورت شد!');
+                    }
+                } catch (_) {
+                    showToast('خطا در خواندن فایل JSON!');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function renderAdminOrders() {
+            const container = document.getElementById('admin-orders-list');
+            if (orders.length === 0) {
+                container.innerHTML = `<div class="py-12 text-center text-xs text-zinc-500 border border-dashed border-borderSubtle rounded-2xl">هنوز سفارشی ثبت نشده است.</div>`;
+                return;
+            }
+
+            container.innerHTML = orders.map((o, idx) => `
+                <div class="p-4 rounded-2xl bg-bgMain border border-borderSubtle flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2.5 flex-wrap">
+                            <span class="font-mono text-xs font-bold text-accent">${o.orderId}</span>
+                            <span class="text-xs font-bold text-white">${o.customer}</span>
+                            <span class="text-[11px] font-mono text-zinc-400">(${o.phone})</span>
+                            ${o.couponUsed ? `<span class="px-2 py-0.5 rounded bg-accent/10 text-accent font-mono text-[10px]">COUPON: ${o.couponUsed}</span>` : ''}
+                            <span class="text-[10px] text-zinc-500">${o.date}</span>
+                        </div>
+                        <p class="text-xs text-zinc-300">اقلام: ${o.items}</p>
+                        <p class="text-[11px] text-zinc-500">آدرس: ${o.address}</p>
+                    </div>
+                    <div class="flex sm:flex-col items-end justify-between gap-2 shrink-0">
+                        <span class="font-mono text-xs font-bold text-white">${formatPrice(o.total)}</span>
+                        <button onclick="toggleOrderStatus(${idx})" class="px-3 py-1 rounded-lg text-[11px] font-medium ${o.status === 'ارسال شده' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'}">
+                            ${o.status} (تغییر وضعیت)
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleOrderStatus(idx) {
+            orders[idx].status = orders[idx].status === 'در انتظار ارسال' ? 'ارسال شده' : 'در انتظار ارسال';
+            saveOrders();
+            renderAdminOrders();
+            showToast('وضعیت سفارش بروزرسانی شد.');
+        }
+
+        function clearOrders() {
+            orders = [];
+            saveOrders();
+            renderAdminOrders();
+            showToast('تاریخچه سفارشات پاک شد.');
+        }
+
+        // LISTENERS
+        document.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.cat-btn').forEach(b => {
+                    b.className = 'cat-btn px-4 py-2 rounded-xl text-xs font-medium bg-bgCard text-zinc-400 hover:text-white border border-borderSubtle transition-all shrink-0';
+                });
+                btn.className = 'cat-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-black transition-all shrink-0';
+                currentCategory = btn.dataset.cat;
+                renderStore();
+            });
+        });
+
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderStore();
+        });
+
+        document.getElementById('sort-select').addEventListener('change', (e) => {
+            sortMode = e.target.value;
+            renderStore();
+        });
+
+        document.getElementById('cart-drawer').addEventListener('click', (e) => {
+            if (e.target.id === 'cart-drawer') toggleCart(false);
+        });
+        document.getElementById('product-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'product-modal') closeProductModal();
+        });
+        document.getElementById('checkout-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'checkout-modal') closeCheckoutModal();
+        });
+
+        // INIT
+        syncExternalJSONIfNeeded();
+        renderStore();
+        renderCart();
+        updateOrderBadges();
+        lucide.createIcons();
+    </script>
+</body>
+</html>
