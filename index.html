@@ -117,7 +117,6 @@
             opacity: 1;
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0a0a0c; }
         ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
@@ -186,7 +185,7 @@
                 <div class="max-w-xl space-y-4 z-10">
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-zinc-300 text-xs">
                         <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-                        کالکشن پاییز و زمستان ۲۰۲۶
+                        کالکشن پاییز و زمستان ۲۰۲۶ (متصل به پروکسی کلودفلر)
                     </div>
                     <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-[1.2]">
                         طراحی مینیمال،<br>
@@ -207,7 +206,7 @@
                 </div>
 
                 <div onclick="openProductModal(products[0]?.id)" class="cursor-pointer relative w-full md:w-80 h-64 rounded-2xl overflow-hidden border border-borderSubtle bg-bgElevated shrink-0 group">
-                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80" alt="Featured" class="w-full h-full object-cover object-center opacity-90 group-hover:scale-105 transition-transform duration-700">
+                    <img id="hero-featured-img" src="" onerror="handleImgError(this, 'VX-PRO')" alt="Featured" class="w-full h-full object-cover object-center opacity-90 group-hover:scale-105 transition-transform duration-700">
                     <div class="absolute bottom-3 right-3 left-3 p-3 rounded-xl bg-black/75 backdrop-blur-md border border-white/10 flex items-center justify-between">
                         <div>
                             <span class="text-[10px] font-mono text-accent block">FLAGSHIP ITEM</span>
@@ -353,9 +352,8 @@
                         </button>
                     </div>
 
-                    <!-- GitHub JSON Sync & Logout -->
                     <div class="flex flex-wrap items-center gap-2.5">
-                        <button onclick="exportProductsJSON()" class="px-3.5 py-2 rounded-xl bg-bgElevated hover:bg-zinc-800 border border-borderSubtle text-xs text-zinc-200 transition-colors flex items-center gap-1.5" title="دانلود فایل products.json برای قرار دادن در گیت‌هاب">
+                        <button onclick="exportProductsJSON()" class="px-3.5 py-2 rounded-xl bg-bgElevated hover:bg-zinc-800 border border-borderSubtle text-xs text-zinc-200 transition-colors flex items-center gap-1.5">
                             <i data-lucide="download" class="w-3.5 h-3.5 text-accent"></i>
                             خروجی JSON گیت‌هاب
                         </button>
@@ -416,7 +414,7 @@
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-xs text-zinc-400 mb-1.5">لینک تصویر (URL)</label>
+                                    <label class="block text-xs text-zinc-400 mb-1.5">لینک تصویر (خودکار پروکسی می‌شود)</label>
                                     <input type="url" id="prod-img" placeholder="https://..." dir="ltr" class="w-full px-3.5 py-2.5 rounded-xl bg-bgMain border border-borderSubtle text-xs text-white font-mono focus:outline-none focus:border-zinc-500">
                                 </div>
                                 <div>
@@ -511,7 +509,7 @@
             </button>
 
             <div class="md:col-span-6 bg-bgElevated h-72 md:h-auto relative overflow-hidden">
-                <img id="modal-img" src="" alt="" class="w-full h-full object-cover">
+                <img id="modal-img" src="" onerror="handleImgError(this, 'VORTEX')" alt="" class="w-full h-full object-cover">
                 <span id="modal-badge" class="hidden absolute top-4 right-4 px-3 py-1 rounded-md bg-black/80 backdrop-blur-md text-[11px] font-mono font-bold text-accent border border-white/10"></span>
             </div>
 
@@ -603,7 +601,6 @@
             </div>
 
             <div class="pt-4 border-t border-borderSubtle space-y-4">
-                <!-- Coupon Input Box -->
                 <div class="flex items-center gap-2">
                     <input type="text" id="cart-coupon-input" placeholder="کد تخفیف (مثلاً VORTEX20)" dir="ltr" class="flex-1 px-3 py-2 rounded-xl bg-bgMain border border-borderSubtle text-xs text-white font-mono uppercase focus:outline-none focus:border-zinc-500">
                     <button onclick="applyCouponCode()" class="px-4 py-2 rounded-xl bg-bgElevated hover:bg-zinc-700 text-xs text-zinc-200 font-medium transition-colors">
@@ -635,11 +632,38 @@
 
     <!-- FOOTER -->
     <footer class="border-t border-borderSubtle py-6 px-4 text-center text-xs text-zinc-500 mt-16">
-        VORTEX CONCEPT STORE — مرحله ۳: مجهز به موتور کد تخفیف، آمار فروش زنده و سینک دیتابیس JSON گیت‌هاب
+        VORTEX CONCEPT STORE — مجهز به پروکسی تصویر کلودفلر (/api/img) برای بارگذاری بدون فیلتر
     </footer>
 
     <!-- APPLICATION LOGIC -->
     <script>
+        // CLOUDFLARE IMAGE PROXY HELPER
+        // اگر سایت روی کلودفلر باشد، تمام عکس‌ها را از مسیر /api/img?url= رد می‌کند تا فیلتر نباشند
+        function proxyImg(rawUrl) {
+            if (!rawUrl) return createFallbackSVG('VORTEX');
+            if (rawUrl.startsWith('data:') || rawUrl.startsWith('/api/img')) return rawUrl;
+            // اگر روی لوکال‌هاست یا فایل کامپیوتر باز شده باشد، از پروکسی کلودفلر یا لینک مستقیم استفاده می‌کند
+            if (window.location.protocol === 'file:') return rawUrl;
+            return `/api/img?url=${encodeURIComponent(rawUrl)}`;
+        }
+
+        // گرافیک SVG داخلی در صورتی که اینترنت کاربر کاملاً قطع باشد یا لینک عکس خراب باشد
+        function createFallbackSVG(label) {
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+                <rect width="600" height="600" fill="#14151a"/>
+                <circle cx="300" cy="300" r="180" fill="none" stroke="#23252c" stroke-width="2"/>
+                <circle cx="300" cy="300" r="90" fill="#18191e" stroke="#e2f163" stroke-width="1.5" stroke-opacity="0.4"/>
+                <text x="300" y="305" font-family="monospace" font-weight="bold" font-size="22" fill="#e2f163" text-anchor="middle">${label}</text>
+                <text x="300" y="335" font-family="sans-serif" font-size="12" fill="#71717a" text-anchor="middle">VORTEX STUDIO ARCHIVE</text>
+            </svg>`;
+            return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+        }
+
+        function handleImgError(imgEl, title) {
+            imgEl.onerror = null;
+            imgEl.src = createFallbackSVG(title.slice(0, 14));
+        }
+
         const defaultProducts = [
             {
                 id: 101,
@@ -714,25 +738,6 @@
         let selectedOptionText = 'مشکی کربن (Obsidian)';
         let activeCoupon = null;
 
-        // Auto-fetch products.json if hosted on GitHub Pages and localStorage is empty
-        async function syncExternalJSONIfNeeded() {
-            if (!localStorage.getItem('vx_products')) {
-                try {
-                    const res = await fetch('./products.json');
-                    if (res.ok) {
-                        const externalData = await res.json();
-                        if (Array.isArray(externalData) && externalData.length > 0) {
-                            products = externalData;
-                            saveProducts();
-                            renderStore();
-                        }
-                    }
-                } catch (_) {
-                    // Fallback to defaultProducts silently
-                }
-            }
-        }
-
         function saveProducts() { localStorage.setItem('vx_products', JSON.stringify(products)); updateAdminStats(); }
         function saveCart() { localStorage.setItem('vx_cart', JSON.stringify(cart)); }
         function saveOrders() { localStorage.setItem('vx_orders', JSON.stringify(orders)); updateOrderBadges(); updateAdminStats(); }
@@ -775,8 +780,13 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 2. RENDER STOREFRONT
+        // 2. RENDER STOREFRONT (WITH CLOUDFLARE PROXY IMAGES)
         function renderStore() {
+            const heroImg = document.getElementById('hero-featured-img');
+            if (heroImg && products[0]) {
+                heroImg.src = proxyImg(products[0].image);
+            }
+
             const grid = document.getElementById('products-grid');
             let filtered = products.filter(p => {
                 const matchCat = currentCategory === 'all' || p.category === currentCategory;
@@ -796,7 +806,7 @@
                 <article class="product-card rounded-2xl bg-bgCard border border-borderSubtle overflow-hidden flex flex-col justify-between">
                     <div onclick="openProductModal(${p.id})" class="cursor-pointer">
                         <div class="relative h-56 bg-bgElevated overflow-hidden">
-                            <img src="${p.image}" alt="${p.title}" class="product-img w-full h-full object-cover">
+                            <img src="${proxyImg(p.image)}" onerror="handleImgError(this, '${p.category}')" alt="${p.title}" class="product-img w-full h-full object-cover">
                             ${p.badge ? `<span class="absolute top-3 right-3 px-2.5 py-1 rounded-md bg-black/75 backdrop-blur-md text-[10px] font-mono font-bold text-accent border border-white/10">${p.badge}</span>` : ''}
                         </div>
                         <div class="p-5">
@@ -828,7 +838,8 @@
             const p = products.find(item => item.id === id);
             if (!p) return;
 
-            document.getElementById('modal-img').src = p.image;
+            const modalImg = document.getElementById('modal-img');
+            modalImg.src = proxyImg(p.image);
             document.getElementById('modal-cat').textContent = p.category;
             document.getElementById('modal-title').textContent = p.title;
             document.getElementById('modal-price').textContent = formatPrice(p.price);
@@ -941,7 +952,7 @@
 
             container.innerHTML = cart.map(item => `
                 <div class="flex items-center justify-between gap-3 p-3 rounded-xl bg-bgElevated border border-borderSubtle">
-                    <img src="${item.image}" class="w-12 h-12 rounded-lg object-cover shrink-0">
+                    <img src="${proxyImg(item.image)}" onerror="handleImgError(this, 'VX')" class="w-12 h-12 rounded-lg object-cover shrink-0">
                     <div class="flex-1 min-w-0">
                         <h4 class="text-xs font-bold text-white truncate">${item.title}</h4>
                         <span class="text-[11px] text-zinc-400 font-mono block">${formatPrice(item.price)}</span>
@@ -1029,7 +1040,7 @@
             prodEl.textContent = `${products.length} کالا`;
         }
 
-        // 6. ADMIN PANEL (AUTH, TABS, COUPONS, JSON SYNC)
+        // 6. ADMIN PANEL
         function renderAdminView() {
             const loginBox = document.getElementById('admin-login-box');
             const dashboard = document.getElementById('admin-dashboard');
@@ -1092,7 +1103,7 @@
             list.innerHTML = products.map(p => `
                 <div class="flex items-center justify-between gap-4 p-3.5 rounded-xl bg-bgMain border border-borderSubtle">
                     <div class="flex items-center gap-3 min-w-0">
-                        <img src="${p.image}" class="w-11 h-11 rounded-lg object-cover shrink-0">
+                        <img src="${proxyImg(p.image)}" onerror="handleImgError(this, 'VX')" class="w-11 h-11 rounded-lg object-cover shrink-0">
                         <div class="min-w-0">
                             <h4 class="text-xs font-bold text-white truncate">${p.title}</h4>
                             <div class="flex items-center gap-2 mt-0.5">
@@ -1194,7 +1205,6 @@
             showToast('محصولات پیش‌فرض بازیابی شدند.');
         }
 
-        // COUPON MANAGEMENT IN ADMIN
         function renderAdminCoupons() {
             const list = document.getElementById('admin-coupons-list');
             list.innerHTML = coupons.map(c => `
@@ -1229,7 +1239,6 @@
             showToast('کد تخفیف حذف شد.');
         }
 
-        // EXPORT / IMPORT JSON FOR GITHUB REPOSITORY
         function exportProductsJSON() {
             const dataStr = JSON.stringify(products, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
@@ -1239,7 +1248,7 @@
             a.download = 'products.json';
             a.click();
             URL.revokeObjectURL(url);
-            showToast('فایل products.json دانلود شد! آن را در کنار index.html در گیت‌هاب قرار دهید.');
+            showToast('فایل products.json دانلود شد!');
         }
 
         function importProductsJSON(event) {
@@ -1340,7 +1349,6 @@
         });
 
         // INIT
-        syncExternalJSONIfNeeded();
         renderStore();
         renderCart();
         updateOrderBadges();
